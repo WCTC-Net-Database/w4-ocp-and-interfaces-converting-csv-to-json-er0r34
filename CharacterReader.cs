@@ -1,16 +1,18 @@
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CharacterConsole.Models;
 
 namespace CharacterConsole
 {
-    public class CsvFileHandler : IFileHandler
+    public class CharacterReader
     {
         private readonly string _filePath;
 
-        public CsvFileHandler(string filePath)
+        public CharacterReader(string filePath)
         {
             _filePath = filePath;
         }
@@ -28,11 +30,10 @@ namespace CharacterConsole
             return new List<Character>(csv.GetRecords<Character>());
         }
 
-        public void WriteCharacters(List<Character> characters)
+        public Character FindCharacterByName(string name)
         {
-            using var writer = new StreamWriter(_filePath);
-            using var csv = new CsvWriter(writer, new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture));
-            csv.WriteRecords(characters);
+            var characters = ReadCharacters();
+            return characters.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

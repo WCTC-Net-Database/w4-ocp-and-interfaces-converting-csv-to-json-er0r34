@@ -1,10 +1,22 @@
-namespace W4_assignment_template.Models;
+﻿using CsvHelper.Configuration.Attributes;
 
-public class Character
+namespace CharacterConsole.Models
 {
-    public string Name { get; set; }
-    public string Class { get; set; }
-    public int Level { get; set; }
-    public int HP { get; set; }
-    public List<string> Equipment { get; set; }
+    public class Character
+    {
+        [Name("Name")]
+        public string Name { get; set; }
+
+        [Name("Class")]
+        public string CharacterClass { get; set; }
+
+        [Name("Level")]
+        public int Level { get; set; }
+
+        [Name("HP")]
+        public int HitPoints { get; set; }
+
+        [Name("Equipment")]
+        public string[] Equipment { get; set; }
+    }
 }

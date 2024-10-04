@@ -1,19 +1,41 @@
-using W4_assignment_template.Interfaces;
-using W4_assignment_template.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using CharacterConsole.Models;
+using CharacterConsole.Services;
 
-namespace W4_assignment_template.Services;
-
-public class JsonFileHandler : IFileHandler
+namespace CharacterConsole
 {
-    public List<Character> ReadCharacters(string filePath)
+    public class JsonFileHandler : IFileHandler
     {
-        // TODO: Implement JSON reading logic
-        throw new NotImplementedException();
-    }
+        private readonly string _filePath;
 
-    public void WriteCharacters(string filePath, List<Character> characters)
-    {
-        // TODO: Implement JSON writing logic
-        throw new NotImplementedException();
+        public JsonFileHandler(string filePath)
+        {
+            _filePath = filePath;
+        }
+
+        public List<Character> ReadCharacters()
+        {
+            if (!File.Exists(_filePath))
+            {
+                Console.WriteLine($"File not found: {_filePath}");
+                return new List<Character>();
+            }
+
+            var json = File.ReadAllText(_filePath);
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new CharacterConverter());
+            return JsonSerializer.Deserialize<List<Character>>(json, options) ?? new List<Character>();
+        }
+
+        public void WriteCharacters(List<Character> characters)
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            options.Converters.Add(new CharacterConverter());
+            var json = JsonSerializer.Serialize(characters, options);
+            File.WriteAllText(_filePath, json);
+        }
     }
 }

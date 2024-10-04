@@ -1,81 +1,44 @@
-using W4_assignment_template.Interfaces;
-using W4_assignment_template.Models;
-using W4_assignment_template.Services;
+﻿using System;
+using System.IO;
+using CharacterConsole.Models;
 
-namespace W4_assignment_template;
-
-class Program
+namespace CharacterConsole
 {
-    static IFileHandler fileHandler;
-    static List<Character> characters;
-
-    static void Main()
+    class Program
     {
-        string filePath = "input.csv"; // Default to CSV file
-        fileHandler = new CsvFileHandler(); // Default to CSV handler
-        characters = fileHandler.ReadCharacters(filePath);
-
-        while (true)
+        static void Main(string[] args)
         {
-            Console.WriteLine("Menu:");
-            Console.WriteLine("1. Display Characters");
-            Console.WriteLine("2. Add Character");
-            Console.WriteLine("3. Level Up Character");
-            Console.WriteLine("4. Exit");
-            Console.Write("Enter your choice: ");
-            string choice = Console.ReadLine();
+            IInput input = new ConsoleInput();
+            IOutput output = new ConsoleOutput();
+            string csvFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files", "input.csv");
+            string jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files", "input.json");
 
-            switch (choice)
-            {
-                case "1":
-                    DisplayAllCharacters();
-                    break;
-                case "2":
-                    AddCharacter();
-                    break;
-                case "3":
-                    LevelUpCharacter();
-                    break;
-                case "4":
-                    fileHandler.WriteCharacters(filePath, characters);
-                    return;
-                default:
-                    Console.WriteLine("Invalid choice. Please try again.");
-                    break;
-            }
+            // Default to CSV file handler
+            IFileHandler fileHandler = new CsvFileHandler(csvFilePath);
+
+            var manager = new CharacterManager(input, output, fileHandler);
+            manager.Run();
         }
     }
 
-    static void DisplayAllCharacters()
+    public class ConsoleInput : IInput
     {
-        foreach (var character in characters)
+        public string ReadLine()
         {
-            Console.WriteLine($"Name: {character.Name}, Class: {character.Class}, Level: {character.Level}, HP: {character.HP}, Equipment: {string.Join(", ", character.Equipment)}");
+            return Console.ReadLine();
         }
     }
 
-    static void AddCharacter()
+    public class ConsoleOutput : IOutput
     {
-        // TODO: Implement logic to add a new character
-        // Prompt for character details (name, class, level, hit points, equipment)
-        // Add the new character to the characters list
-    }
-
-    static void LevelUpCharacter()
-    {
-        Console.Write("Enter the name of the character to level up: ");
-        string nameToLevelUp = Console.ReadLine();
-
-        var character = characters.Find(c => c.Name.Equals(nameToLevelUp, StringComparison.OrdinalIgnoreCase));
-        if (character != null)
+        public void WriteLine(string message)
         {
-            // TODO: Implement logic to level up the character
-            // character.Level++;
-            // Console.WriteLine($"Character {character.Name} leveled up to level {character.Level}!");
+            Console.WriteLine(message);
         }
-        else
+
+        public void Write(string message)
         {
-            Console.WriteLine("Character not found.");
+            Console.Write(message);
         }
     }
 }
